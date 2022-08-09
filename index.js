@@ -35,7 +35,7 @@ run().catch(console.dir);
 
 
 app.get("/", (req, res) => {
-  res.send("Freshmart Co-op Is Running");
+  res.send("Freshmart Co-op Server Is Running");
 });
 
 app.listen(PORT, () => {
