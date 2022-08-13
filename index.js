@@ -25,6 +25,7 @@ async function run() {
     await client.connect();
     const database = client.db("FreshMart");
     const productCollection = database.collection("products");
+    const orderCollection = database.collection("orders");
 
     //loading products form database
     app.get("/products", async (req, res) => {
@@ -39,6 +40,14 @@ async function run() {
       res.send(product);
     });
 
+    // loading orders by email
+    app.get('/orders', async (req, res) => {
+      const email = req.query.email;
+      const filter = {customerEmail: email};
+      const orders = await orderCollection.find(filter).toArray();
+      res.send(orders);
+    })
+
     //sending product information to database
     app.post("/products", async (req, res) => {
       const product = req.body;
@@ -46,11 +55,32 @@ async function run() {
       res.send(result);
     });
 
+    //sending orders info to database
+    app.post('/orders', async (req, res) => {
+      const order = req.body;
+      const result = await orderCollection.insertOne(order);
+      res.send(result);
+    })
+
     // removing data from Database
+
+    //deleting product from database
     app.delete("/products/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await productCollection.deleteOne(query);
+      if (result.deletedCount === 1) {
+        res.send(result);
+      } else {
+        console.log("No documents matched the query. Deleted 0 documents.");
+      }
+    });
+
+    //deleting orders from the database
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
       if (result.deletedCount === 1) {
         res.send(result);
       } else {
